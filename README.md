@@ -1,0 +1,156 @@
+# Fair-Split 🍻
+> 시간·음주 가중치 기반 공정 정산 앱
+
+## 프로젝트 소개
+회식·술자리에서 음주 여부, 참석 시간, 개인 주문을 반영한 공정한 정산을 자동으로 계산해주는 Flutter 앱입니다.
+
+## 팀원
+| 이름 | 역할 |
+|------|------|
+| 엄기환 (팀장) | 계산·문서 파트 |
+| 고상혁 | 서버 파트 |
+| 채지인 | 입력 파트 |
+
+---
+
+## 개발 환경 설정
+
+### 필수 설치
+- Flutter 3.x 이상
+- Android Studio
+- Firebase 계정 (고상혁에게 문의)
+
+### 프로젝트 세팅
+\```bash
+# 1. 클론
+git clone https://github.com/ekhwn0430/Fair-Split.git
+cd Fair-Split
+
+# 2. 패키지 설치
+flutter pub get
+
+# 3. 실행
+flutter run
+\```
+
+---
+
+## 구현 완료 기능 (고상혁 - 서버 파트)
+
+### 🔐 인증
+- 이메일·비밀번호 회원가입·로그인
+- 자동 로그인 (Firebase Auth)
+- 게스트 모드 (이름만 입력하고 참여)
+
+### 👤 프로필·마이페이지
+- 회원가입 시 이름·이메일·은행·계좌번호 저장
+- 마이페이지에서 언제든 수정 가능
+- 주요 은행·추가 은행 드롭다운 선택
+
+### 🏠 모임 생성 (총무)
+- 모임 이름 입력 후 6자리 랜덤 코드 발급
+- 코드 복사·카톡 공유 기능
+- 술자리 시작 버튼 → 시작 시간 Firestore 기록
+
+### 🚪 모임 참여
+- 6자리 코드 입력으로 참여
+- 게스트도 이름만 입력하고 참여 가능
+
+### ✅ 모임 방 (참여자)
+- 도착 버튼 → 도착 시간 Firestore 기록
+- 체크박스 선택:
+  - 🍖 음식 (안주류 - 시간 비례 분담)
+  - 🍺 일반 주류 (소주·병맥주 - 음주자끼리 시간 비례)
+  - 🥤 음료수 (개수 선택)
+- 개인 주문 추가 (메뉴 이름 + 금액 직접 입력 → 본인 전액 부담)
+- 참여자 현황 실시간 표시
+
+---
+
+## Firestore 데이터 구조
+
+### users 컬렉션
+\```
+users/{uid}
+  - name: String
+  - email: String
+  - accountNumber: String (은행|예금주|계좌번호)
+  - createdAt: Timestamp
+\```
+
+### meetings 컬렉션
+\```
+meetings/{meetingId}
+  - name: String
+  - code: String (6자리)
+  - hostId: String
+  - hostName: String
+  - status: String (waiting / started)
+  - createdAt: Timestamp
+  - startedAt: Timestamp
+  - members:
+      {uid}:
+        - name: String
+        - joinedAt: Timestamp
+        - arrivedAt: Timestamp
+        - eatFood: Boolean
+        - drinkAlcohol: Boolean
+        - drinkSoftDrink: Boolean
+        - softDrinkCount: int
+        - personalOrders: List [{name, price}]
+        - personalTotal: int
+        - isGuest: Boolean
+\```
+
+---
+
+## 화면 구조
+\```
+lib/
+├── main.dart
+├── firebase_options.dart
+├── screens/
+│   ├── login_screen.dart        # 로그인
+│   ├── signup_screen.dart       # 회원가입
+│   ├── home_screen.dart         # 홈 (모임 생성·참여)
+│   ├── my_page_screen.dart      # 마이페이지
+│   ├── create_meeting_screen.dart  # 모임 생성
+│   ├── join_meeting_screen.dart    # 모임 참여
+│   ├── guest_join_screen.dart      # 게스트 참여
+│   └── meeting_room_screen.dart    # 모임 방
+└── services/
+    └── auth_service.dart        # Firebase Auth·Firestore
+\```
+
+---
+
+## 정산 계산 로직 (엄기환 파트 참고용)
+
+참여자 i의 부담액:
+
+**Ci = F·ti/Σtj + A·di·ti/Σdj·tj + Pi**
+
+- F: 음식비 합계
+- A: 일반 주류비 합계
+- ti: 참석 시간
+- di: 음주 여부 (0 or 1)
+- Pi: 개인 주문 합계 (personalTotal)
+
+---
+
+## Firebase 접근 권한
+별도 설정 없이 clone 후 바로 실행 가능합니다.
+Firebase 콘솔 직접 접근이 필요하면 고상혁에게 구글 이메일 알려주세요.
+- 프로젝트: fair-split
+- Auth: 이메일·비밀번호 활성화
+- Firestore: 서울 리전 (asia-northeast3)
+
+---
+
+## 개발 일정
+| 주차 | 고상혁 (서버) |
+|------|--------------|
+| 7주 | 로그인·프로필 ✅ |
+| 7주 | 모임 생성·코드 참여 ✅ |
+| 11주 | 송금 상태 동기화 |
+| 12주 | 모임 이력 |
