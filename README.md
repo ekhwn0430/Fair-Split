@@ -29,8 +29,11 @@ cd Fair-Split
 # 2. 패키지 설치
 flutter pub get
 
-# 3. 실행
-flutter run
+# 3. 실행 (Gemini 키는 저장소에 올리지 않음)
+flutter run --dart-define=GEMINI_API_KEY=발급받은키
+
+# 4. 테스트
+flutter test
 \```
 
 ---
@@ -67,6 +70,23 @@ flutter run
 
 ---
 
+## 구현 완료 기능 (엄기환 - 계산 파트)
+
+### 🧮 정산 계산 (`lib/services/fair_settlement_calculator.dart`)
+- 음식: 먹은 사람끼리 참석 시간 비례 / 소주·맥주: 마신 사람끼리 참석 시간 비례
+- 고가 주류·개인 주문·음료수: 주문한 사람이 수량만큼 부담
+- 참석 시간 = max(도착, 시작) ~ min(퇴장, 결제 시각), 자정 넘김 처리
+- 영수증 총액 ≠ 항목 합계(할인)면 차이를 각자 부담 비율대로 배분
+- 100원 단위 내림, 남은 금액은 룰렛 당첨자 1명 부담(시드 고정으로 결과 불변)
+- 음주자 0명인데 술 항목 존재 등 예외 입력은 정산 차단
+- 검증: `test/fair_settlement_calculator_test.dart`, 파이썬 참조 구현 `docs/calculator_reference.py`
+
+### 🔗 모임방 → 정산 연결
+- 총무: 술자리 시작 후 '영수증으로 정산하기' → 영수증 인식 → 참여자 정보 자동 채움
+- 참여자가 모임방에 적은 개인 주문 메뉴명을 영수증 항목과 맞춰 자동 배정
+
+---
+
 ## Firestore 데이터 구조
 
 ### users 컬렉션
@@ -99,6 +119,7 @@ meetings/{meetingId}
         - softDrinkCount: int
         - personalOrders: List [{name, price}]
         - personalTotal: int
+        - leftAt: Timestamp (먼저 간 경우만, '먼저 가요' 버튼)
         - isGuest: Boolean
 \```
 
