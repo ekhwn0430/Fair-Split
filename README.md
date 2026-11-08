@@ -126,7 +126,7 @@ meetings/{meetingId}
 ---
 
 ## 화면 구조
-\```
+```
 lib/
 ├── main.dart
 ├── firebase_options.dart
@@ -141,7 +141,7 @@ lib/
 │   └── meeting_room_screen.dart    # 모임 방
 └── services/
     └── auth_service.dart        # Firebase Auth·Firestore
-\```
+```
 
 ---
 
