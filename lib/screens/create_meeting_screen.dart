@@ -175,7 +175,7 @@ class _CreateMeetingScreenState extends State<CreateMeetingScreen> {
                         ));
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('카톡에 붙여넣기 하세요 😊'),
+                            content: Text('카톡에 붙여넣기 하세요'),
                             duration: Duration(seconds: 2),
                           ),
                         );

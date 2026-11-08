@@ -94,7 +94,7 @@ class SettlementResultScreen extends StatelessWidget {
             if (result.remainder > 0) ...[
               const SizedBox(height: 8),
               _InfoBanner(
-                message: '🎰 각자 ${_formatWon(result.roundingUnit)}원 단위로 '
+                message: '각자 ${_formatWon(result.roundingUnit)}원 단위로 '
                     '내리고 남은 ${_formatWon(result.remainder)}원은 룰렛 당첨자 '
                     '${nameOf(result.remainderPayerId)}님이 냅니다.',
               ),

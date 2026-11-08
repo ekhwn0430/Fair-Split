@@ -166,7 +166,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
             // 은행 선택
             DropdownButtonFormField<String>(
-              value: _selectedBank,
+              initialValue: _selectedBank,
               decoration: const InputDecoration(
                 labelText: '은행',
               ),

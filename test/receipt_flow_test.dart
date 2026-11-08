@@ -17,10 +17,22 @@ import 'package:http/testing.dart';
 
 void main() {
   testWidgets('영수증 업로드부터 수정 화면까지 전체 흐름', (tester) async {
-    final tempImage = await File(
-      '${Directory.systemTemp.path}/fake_receipt_test.jpg',
-    ).writeAsBytes([0, 1, 2, 3]);
-    addTearDown(() => tempImage.delete());
+    // 실제 파일 I/O는 FakeAsync 안에서 끝나지 않으므로 runAsync로 감싼다.
+    // 감싸지 않으면 이 await가 영영 끝나지 않아 10분 타임아웃이 난다.
+    final tempImage = (await tester.runAsync(
+      () => File(
+        '${Directory.systemTemp.path}/fake_receipt_test.jpg',
+      ).writeAsBytes([0, 1, 2, 3]),
+    ))!;
+    addTearDown(
+      () => tester.runAsync(() async {
+        try {
+          await tempImage.delete();
+        } catch (_) {
+          // 임시 파일 삭제 실패는 테스트 결과와 무관하다.
+        }
+      }),
+    );
 
     const pickerChannel = MethodChannel('plugins.flutter.io/image_picker');
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
@@ -66,6 +78,9 @@ void main() {
           ],
         }),
         200,
+        // charset이 없으면 http.Response가 본문을 Latin-1로 인코딩하다가
+        // 한글 메뉴명에서 ArgumentError를 던진다. 실제 Gemini 응답처럼 UTF-8을 명시한다.
+        headers: {'content-type': 'application/json; charset=utf-8'},
       );
     });
 
@@ -108,7 +123,19 @@ void main() {
     // Future(= 화면이 pop될 때 완료)를 기다리는 중이라 _isAnalyzing이 true로 남아
     // 있고, 그 아래 ReceiptUploadScreen의 CircularProgressIndicator가 계속
     // 애니메이션을 돌려서 "더 그릴 프레임이 없는" 상태가 영영 오지 않는다.
-    await tester.pump(const Duration(milliseconds: 100)); // mock 지연 해소
+    // 업로드 화면이 고른 사진을 읽는 picked.readAsBytes()도 실제 파일 I/O다.
+    // 파일 읽기는 열기·길이 확인·읽기·닫기 단계로 나뉘고, 각 단계는 실제 시간
+    // (runAsync)에 진행되지만 다음 단계로 넘어가는 continuation은 pump 때만
+    // 실행된다. 그래서 runAsync와 pump를 한 번씩만 하면 읽기가 중간에 멈춘다.
+    // 수정 화면이 뜰 때까지 둘을 번갈아 돌리고, 무한 대기를 막기 위해 횟수를 제한한다.
+    for (var i = 0;
+        i < 50 && find.byType(ReceiptEditScreen).evaluate().isEmpty;
+        i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 100)); // mock 지연 해소
+    }
     await tester.pump(const Duration(milliseconds: 300)); // 화면 전환 애니메이션
 
     expect(find.byType(ReceiptEditScreen), findsOneWidget);

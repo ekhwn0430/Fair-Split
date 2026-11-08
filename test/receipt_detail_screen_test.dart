@@ -89,6 +89,18 @@ void main() {
 
       expect(find.byType(ParticipantInputScreen), findsOneWidget);
       // 개인 주문으로 분류했던 항목이 다시 '개인 주문 배정' 섹션에 나타난다.
+      // 술자리 시간 카드·퇴장 시각 버튼이 추가돼 섹션이 첫 화면 아래에 있으므로
+      // 스크롤해서 찾는다(ListView는 화면에 보이는 부분만 그린다).
+      await tester.scrollUntilVisible(
+        find.text('개인 주문 배정'),
+        300,
+        scrollable: find
+            .descendant(
+              of: find.byType(ParticipantInputScreen),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       expect(find.text('개인 주문 배정'), findsOneWidget);
       // push된 화면 아래에 이전 상세 화면도 여전히 남아 있으므로, 새 화면
       // 안으로 범위를 좁혀서 찾는다.

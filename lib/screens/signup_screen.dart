@@ -46,7 +46,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final accountInfo = '$_selectedBank $_accountHolderController.text ${_accountNumberController.text.trim()}';
       await _authService.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -132,7 +131,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 12),
                 // 은행 선택
                 DropdownButtonFormField<String>(
-                  value: _selectedBank,
+                  initialValue: _selectedBank,
                   decoration: const InputDecoration(
                     labelText: '은행 선택',
                     border: OutlineInputBorder(),

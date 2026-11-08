@@ -108,7 +108,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
   Future<void> _arrive() async {
     setState(() => _isLoading = true);
     final totalPersonal = _personalOrders.fold<int>(
-        0, (sum, order) => sum + (order['price'] as int));
+        0, (total, order) => total + (order['price'] as int));
 
     await _db.collection('meetings').doc(widget.meetingId).update({
       'members.$_myId.arrivedAt': FieldValue.serverTimestamp(),
@@ -125,7 +125,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
     });
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('도착 완료! 정보가 총무에게 전달됐어요 😊')),
+        const SnackBar(content: Text('도착 완료! 정보가 총무에게 전달됐어요')),
       );
     }
   }
@@ -202,7 +202,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
     });
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('술자리 시작! 시작 시간이 기록됐어요 🍻')),
+        const SnackBar(content: Text('술자리 시작! 시작 시간이 기록됐어요')),
       );
     }
   }
@@ -271,7 +271,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                       const SizedBox(width: 8),
                       Text(
                         status == 'started'
-                            ? '술자리 진행 중 🍻'
+                            ? '술자리 진행 중'
                             : '참여자 대기 중...',
                         style: const TextStyle(
                           color: Colors.white,
@@ -343,7 +343,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                     child: Column(
                       children: [
                         CheckboxListTile(
-                          title: const Text('🍖 음식 먹어요'),
+                          title: const Text('음식 먹어요'),
                           subtitle: const Text('안주, 음식류 (시간 비례 분담)'),
                           value: _eatFood,
                           activeColor: const Color(0xFF1D9E75),
@@ -353,7 +353,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                         ),
                         const Divider(height: 1),
                         CheckboxListTile(
-                          title: const Text('🍺 일반 주류 마셔요'),
+                          title: const Text('일반 주류 마셔요'),
                           subtitle: const Text('소주·병맥주 (음주자끼리 시간 비례 분담)'),
                           value: _drinkAlcohol,
                           activeColor: const Color(0xFF1D9E75),
@@ -364,7 +364,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                         ),
                         const Divider(height: 1),
                         CheckboxListTile(
-                          title: const Text('🥤 음료수 마셔요'),
+                          title: const Text('음료수 마셔요'),
                           subtitle: const Text('콜라, 사이다 등'),
                           value: _drinkSoftDrink,
                           activeColor: const Color(0xFF1D9E75),
@@ -421,7 +421,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '💳 개인 주문',
+                            '개인 주문',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -527,7 +527,7 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _arrived || _isLoading ? null : _arrive,
                       icon: const Icon(Icons.check_circle_outline),
-                      label: Text(_arrived ? '도착 완료 ✓' : '도착했어요!'),
+                      label: Text(_arrived ? '도착 완료' : '도착했어요!'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _arrived
                             ? Colors.grey
@@ -640,24 +640,24 @@ class _MeetingRoomScreenState extends State<MeetingRoomScreen> {
                                 children: [
                                   if (eats)
                                     _Tag(
-                                        label: '🍖 음식',
+                                        label: '음식',
                                         color: Colors.green),
                                   if (drinks)
                                     _Tag(
-                                        label: '🍺 일반주류',
+                                        label: '일반주류',
                                         color: Colors.orange),
                                   if (!drinks)
                                     _Tag(
-                                        label: '🚫 비음주',
+                                        label: '비음주',
                                         color: Colors.grey),
                                   if (drinksSoft)
                                     _Tag(
-                                        label: '🥤 음료수 ${softCount}잔',
+                                        label: '음료수 $softCount잔',
                                         color: Colors.blue),
                                   if (personalOrders.isNotEmpty)
                                     _Tag(
                                         label:
-                                        '💳 개인주문 ${personalTotal}원',
+                                        '개인주문 $personalTotal원',
                                         color: Colors.deepPurple),
                                 ],
                               ),
