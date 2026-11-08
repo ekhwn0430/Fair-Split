@@ -165,8 +165,3 @@ meetings/{meetingId}
 - 1차·2차 영수증 분리 정산
 - Firestore 보안 규칙
 - 영수증 인식 정확도·정산 정확도 평가
-
-## 협업 규칙
-- `main`은 팀장만 merge합니다. 직접 push하지 않습니다.
-- 작업은 `git checkout -b feature/작업명 origin/main`으로 main에서 브랜치를 따서 진행합니다.
-- 완료되면 Pull Request를 올리고, 검토 후 merge합니다.
